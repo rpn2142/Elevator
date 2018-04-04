@@ -35,9 +35,8 @@ public class RequestProcessor extends Thread {
     }
 
 
-    public synchronized void addRequest(Integer floor) {
+    public void addRequest(Integer floor) {
         requestQueue.add(floor);
-        notify();
     }
 
     public void shutdown() {
