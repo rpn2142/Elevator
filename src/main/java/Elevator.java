@@ -21,7 +21,7 @@ public class Elevator {
     }
 
     public void gotoFloor(Integer floor) {
-        requestProcessor.addRequest(floor);
+        requestProcessor.gotoFloor(floor);
     }
 
     public void shutdown() {

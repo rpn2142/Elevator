@@ -39,11 +39,29 @@ public class ElevatorTest {
         }});
 
        elevator.requestService(5);
-       elevator.gotoFloor(10);
        elevator.requestService(1);
+       elevator.gotoFloor(10);
        elevator.gotoFloor(3);
        elevator.shutdown();
        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testRequestServiceButNoAction() throws InterruptedException {
+        Elevator elevator = new Elevator(elevatorController);
+        final Sequence callSequence = context.sequence("sequence-name");
+        context.checking(new Expectations() {{
+            oneOf(elevatorController).gotoFloor(5); inSequence(callSequence);
+            oneOf(elevatorController).gotoFloor(1); inSequence(callSequence);
+            oneOf(elevatorController).gotoFloor(3); inSequence(callSequence);
+        }});
+
+        elevator.requestService(5);
+        Thread.sleep(120);
+        elevator.requestService(1);
+        elevator.gotoFloor(3);
+        elevator.shutdown();
+        context.assertIsSatisfied();
     }
 
     @Test
