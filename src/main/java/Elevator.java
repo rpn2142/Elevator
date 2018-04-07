@@ -20,8 +20,8 @@ public class Elevator {
         requestProcessor.addRequest(floor);
     }
 
-    public void gotoFloor(Integer floor) {
-        requestProcessor.gotoFloor(floor);
+    public void gotoFloor(Integer fromFloor, Integer toFloor) {
+        requestProcessor.gotoFloor(fromFloor, toFloor);
     }
 
     public void shutdown() {

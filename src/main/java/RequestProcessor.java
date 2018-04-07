@@ -1,5 +1,8 @@
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -11,12 +14,12 @@ public class RequestProcessor extends Thread {
     private static final Long REQUEST_TIMEOUT_MS = 100l;
 
     private BlockingQueue<Integer> requestQueue;
-    private BlockingQueue<Integer> serviceQueue;
+    private Map<Integer, BlockingQueue<Integer>> serviceQueues;
     private ElevatorController elevatorController;
 
     public RequestProcessor(ElevatorController elevatorController) {
         this.requestQueue = new ArrayBlockingQueue<Integer>(1000);
-        this.serviceQueue = new ArrayBlockingQueue<Integer>(1000);
+        this.serviceQueues = new ConcurrentHashMap<Integer, BlockingQueue<Integer>>();
         this.elevatorController = elevatorController;
     }
 
@@ -38,7 +41,8 @@ public class RequestProcessor extends Thread {
 
     private void provideService(Integer floor) throws InterruptedException {
         elevatorController.gotoFloor(floor);
-        Integer destinationFloor = serviceQueue.poll(REQUEST_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+        initQueueIfNecessary(floor);
+        Integer destinationFloor = serviceQueues.get(floor).poll(REQUEST_TIMEOUT_MS, TimeUnit.MILLISECONDS);
         if( destinationFloor != null )
             elevatorController.gotoFloor(destinationFloor);
     }
@@ -48,8 +52,14 @@ public class RequestProcessor extends Thread {
         requestQueue.add(floor);
     }
 
-    public void gotoFloor(Integer floor){
-        serviceQueue.add(floor);
+    public void gotoFloor(Integer fromFloor, Integer toFloor){
+        initQueueIfNecessary(fromFloor);
+        serviceQueues.get(fromFloor).add(toFloor);
+    }
+
+    private void initQueueIfNecessary(Integer fromFloor) {
+        if( ! serviceQueues.containsKey(fromFloor) )
+            serviceQueues.put(fromFloor, new ArrayBlockingQueue<Integer>(1000));
     }
 
     public void shutdown() {

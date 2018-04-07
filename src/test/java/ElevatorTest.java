@@ -40,8 +40,8 @@ public class ElevatorTest {
 
        elevator.requestService(5);
        elevator.requestService(1);
-       elevator.gotoFloor(10);
-       elevator.gotoFloor(3);
+       elevator.gotoFloor(5, 10);
+       elevator.gotoFloor(1, 3);
        elevator.shutdown();
        context.assertIsSatisfied();
     }
@@ -57,9 +57,8 @@ public class ElevatorTest {
         }});
 
         elevator.requestService(5);
-        Thread.sleep(120);
         elevator.requestService(1);
-        elevator.gotoFloor(3);
+        elevator.gotoFloor(1, 3);
         elevator.shutdown();
         context.assertIsSatisfied();
     }
@@ -71,7 +70,7 @@ public class ElevatorTest {
             oneOf(elevatorController).gotoFloor(5);
         }});
 
-        elevator.gotoFloor(5);
+        elevator.gotoFloor(1,5);
     }
 
 }
