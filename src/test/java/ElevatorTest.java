@@ -1,4 +1,3 @@
-import junit.framework.TestCase;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.Sequence;
@@ -13,7 +12,7 @@ import org.junit.Test;
 public class ElevatorTest {
 
     Mockery context = null;
-    ElevatorController elevatorController = null;
+    ElevatorDriverController elevatorController = null;
 
 
     @Before
@@ -21,7 +20,7 @@ public class ElevatorTest {
         context = new JUnit4Mockery() {{
             setThreadingPolicy(new Synchroniser());
         }};
-        elevatorController = context.mock(ElevatorController.class);
+        elevatorController = context.mock(ElevatorDriverController.class);
 
     }
 
@@ -29,7 +28,7 @@ public class ElevatorTest {
 
     @Test
     public void testRequestService() throws InterruptedException {
-        Elevator elevator = new Elevator(elevatorController);
+        ElevatorBank elevator = new ElevatorBank(elevatorController);
         final Sequence callSequence = context.sequence("sequence-name");
         context.checking(new Expectations() {{
             oneOf(elevatorController).gotoFloor(5); inSequence(callSequence);
@@ -48,7 +47,7 @@ public class ElevatorTest {
 
     @Test
     public void testRequestServiceButNoAction() throws InterruptedException {
-        Elevator elevator = new Elevator(elevatorController);
+        ElevatorBank elevator = new ElevatorBank(elevatorController);
         final Sequence callSequence = context.sequence("sequence-name");
         context.checking(new Expectations() {{
             oneOf(elevatorController).gotoFloor(5); inSequence(callSequence);
@@ -89,7 +88,7 @@ public class ElevatorTest {
 
     @Test
     public void testGoToService() {
-        Elevator elevator = new Elevator(elevatorController);
+        ElevatorBank elevator = new ElevatorBank(elevatorController);
         context.checking(new Expectations() {{
             oneOf(elevatorController).gotoFloor(5);
         }});
