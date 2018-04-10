@@ -2,32 +2,32 @@
  * Created by pramraj on 4/4/18.
  */
 public class ElevatorBank {
-    private ElevatorDriverController elevatorController;
-    private Elevator requestProcessor;
+    private ElevatorDriverController elevatorDriverController;
+    private Elevator elevator;
 
 
-    public ElevatorBank(ElevatorDriverController elevatorController) {
-        this.elevatorController = elevatorController;
-        requestProcessor = new Elevator(elevatorController);
-        requestProcessor.start();
+    public ElevatorBank(ElevatorDriverController elevatorDriverController) {
+        this.elevatorDriverController = elevatorDriverController;
+        elevator = new Elevator(elevatorDriverController);
+        elevator.start();
     }
 
     public void requestService(Integer floor) {
-        requestProcessor.addRequest(floor);
+        elevator.addRequest(floor);
     }
 
     public void gotoFloor(Integer fromFloor, Integer toFloor) {
-        requestProcessor.gotoFloor(fromFloor, toFloor);
+        elevator.gotoFloor(fromFloor, toFloor);
     }
 
     public void shutdown() {
-        requestProcessor.shutdown();
+        elevator.shutdown();
         waitForShutdown();
     }
 
     private void waitForShutdown() {
         try {
-            requestProcessor.join();
+            elevator.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
