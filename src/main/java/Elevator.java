@@ -1,25 +1,25 @@
+import api.ElevatorDriverController;
+
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import static api.Config.*;
 
 /**
  * Created by pramraj on 4/4/18.
  */
 public class Elevator extends Thread {
 
-    private static final Integer SHUTDOWN_CODE = -1;
-    private static final Long REQUEST_TIMEOUT_MS = 100l;
-
-    private BlockingQueue<Integer> requestQueue;
+    private BlockingQueue<Integer> elevatorRequestQueue;
     private Map<Integer, BlockingQueue<Integer>> serviceQueues;
-    private ElevatorDriverController elevatorController;
+    private ElevatorDriverController elevatorDriverController;
 
-    public Elevator(ElevatorDriverController elevatorController) {
-        this.requestQueue = new ArrayBlockingQueue<Integer>(1000);
+    public Elevator(ElevatorDriverController elevatorDriverController, BlockingQueue<Integer> elevatorRequestQueue) {
+        this.elevatorRequestQueue = elevatorRequestQueue;
         this.serviceQueues = new ConcurrentHashMap<Integer, BlockingQueue<Integer>>();
-        this.elevatorController = elevatorController;
+        this.elevatorDriverController = elevatorDriverController;
     }
 
     @Override
@@ -27,7 +27,7 @@ public class Elevator extends Thread {
 
         Integer floor = null;
         try {
-            while( (floor = requestQueue.take()) != null) {
+            while( (floor = elevatorRequestQueue.take()) != null) {
                 if( floor.equals(SHUTDOWN_CODE) )
                     break;
                 else
@@ -39,16 +39,16 @@ public class Elevator extends Thread {
     }
 
     private void provideService(Integer floor) throws InterruptedException {
-        elevatorController.gotoFloor(floor);
+        elevatorDriverController.gotoFloor(floor);
         initQueueIfNecessary(floor);
         Integer destinationFloor = serviceQueues.get(floor).poll(REQUEST_TIMEOUT_MS, TimeUnit.MILLISECONDS);
         if( destinationFloor != null )
-            elevatorController.gotoFloor(destinationFloor);
+            elevatorDriverController.gotoFloor(destinationFloor);
     }
 
 
-    public void addRequest(Integer floor) {
-        requestQueue.add(floor);
+    private void addRequest(Integer floor) {
+        elevatorRequestQueue.add(floor);
     }
 
     public void gotoFloor(Integer fromFloor, Integer toFloor){

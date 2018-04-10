@@ -1,3 +1,4 @@
+import api.ElevatorDriverController;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.Sequence;
@@ -37,8 +38,8 @@ public class ElevatorTest {
             oneOf(elevatorController).gotoFloor(3); inSequence(callSequence);
         }});
 
-       elevator.requestService(5);
-       elevator.requestService(1);
+       elevator.requestElevator(5);
+       elevator.requestElevator(1);
        elevator.gotoFloor(5, 10);
        elevator.gotoFloor(1, 3);
        elevator.shutdown();
@@ -55,8 +56,8 @@ public class ElevatorTest {
             oneOf(elevatorController).gotoFloor(3); inSequence(callSequence);
         }});
 
-        elevator.requestService(5);
-        elevator.requestService(1);
+        elevator.requestElevator(5);
+        elevator.requestElevator(1);
         elevator.gotoFloor(1, 3);
         elevator.shutdown();
         context.assertIsSatisfied();
