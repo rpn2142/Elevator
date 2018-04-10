@@ -1,12 +1,12 @@
 /**
  * Created by pramraj on 4/4/18.
  */
-public class ElevatorBank {
+public class ElevatorService {
     private ElevatorDriverController elevatorDriverController;
     private Elevator elevator;
 
 
-    public ElevatorBank(ElevatorDriverController elevatorDriverController) {
+    public ElevatorService(ElevatorDriverController elevatorDriverController) {
         this.elevatorDriverController = elevatorDriverController;
         elevator = new Elevator(elevatorDriverController);
         elevator.start();

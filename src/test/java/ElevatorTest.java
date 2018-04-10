@@ -28,7 +28,7 @@ public class ElevatorTest {
 
     @Test
     public void testRequestService() throws InterruptedException {
-        ElevatorBank elevator = new ElevatorBank(elevatorController);
+        ElevatorService elevator = new ElevatorService(elevatorController);
         final Sequence callSequence = context.sequence("sequence-name");
         context.checking(new Expectations() {{
             oneOf(elevatorController).gotoFloor(5); inSequence(callSequence);
@@ -47,7 +47,7 @@ public class ElevatorTest {
 
     @Test
     public void testRequestServiceButNoAction() throws InterruptedException {
-        ElevatorBank elevator = new ElevatorBank(elevatorController);
+        ElevatorService elevator = new ElevatorService(elevatorController);
         final Sequence callSequence = context.sequence("sequence-name");
         context.checking(new Expectations() {{
             oneOf(elevatorController).gotoFloor(5); inSequence(callSequence);
@@ -88,7 +88,7 @@ public class ElevatorTest {
 
     @Test
     public void testGoToService() {
-        ElevatorBank elevator = new ElevatorBank(elevatorController);
+        ElevatorService elevator = new ElevatorService(elevatorController);
         context.checking(new Expectations() {{
             oneOf(elevatorController).gotoFloor(5);
         }});
