@@ -20,7 +20,7 @@ public class Elevator extends Thread implements ElevatorUserControl {
 
     public Elevator(ElevatorDriverController elevatorDriverController, BlockingQueue<ElevatorRequest> elevatorRequestQueue) {
         this.elevatorRequestQueue = elevatorRequestQueue;
-        this.serviceQueue = new ArrayBlockingQueue<Integer>(1000);
+        this.serviceQueue = new ArrayBlockingQueue<Integer>(QUEUE_CAPACITY);
         this.elevatorDriverController = elevatorDriverController;
     }
 

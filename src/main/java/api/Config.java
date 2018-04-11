@@ -6,4 +6,5 @@ package api;
 public interface Config {
     Integer SHUTDOWN_CODE = -1;
     Long REQUEST_TIMEOUT_MS = 100l;
+    Integer QUEUE_CAPACITY = 1000;
 }
