@@ -1,4 +1,8 @@
+import api.ElevatorAvailableCallback;
 import api.ElevatorDriverController;
+import api.ElevatorUserControl;
+import main.ElevatorService;
+import model.ElevatorRequest;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.Sequence;
@@ -38,10 +42,8 @@ public class ElevatorTest {
             oneOf(elevatorController).gotoFloor(3); inSequence(callSequence);
         }});
 
-       elevator.requestElevator(5);
-       elevator.requestElevator(1);
-       elevator.gotoFloor(5, 10);
-       elevator.gotoFloor(1, 3);
+       elevator.requestElevator(getElevatorRequest(5, 10));
+       elevator.requestElevator(getElevatorRequest(1, 3));
        elevator.shutdown();
        context.assertIsSatisfied();
     }
@@ -56,9 +58,8 @@ public class ElevatorTest {
             oneOf(elevatorController).gotoFloor(3); inSequence(callSequence);
         }});
 
-        elevator.requestElevator(5);
-        elevator.requestElevator(1);
-        elevator.gotoFloor(1, 3);
+        elevator.requestElevator(getElevatorRequest(5, null));
+        elevator.requestElevator(getElevatorRequest(1, 3));
         elevator.shutdown();
         context.assertIsSatisfied();
     }
@@ -87,14 +88,23 @@ public class ElevatorTest {
 //    }
 
 
-    @Test
+    //@Test
     public void testGoToService() {
         ElevatorService elevator = new ElevatorService(elevatorController);
         context.checking(new Expectations() {{
             oneOf(elevatorController).gotoFloor(5);
         }});
 
-        elevator.gotoFloor(1,5);
+        //elevator.gotoFloor(1,5);
+    }
+
+    private ElevatorRequest getElevatorRequest(Integer fromFloor, final Integer toFloor) {
+        return new ElevatorRequest(fromFloor, new ElevatorAvailableCallback() {
+            public void run(ElevatorUserControl elevatorForUser) {
+                if( toFloor != null )
+                elevatorForUser.gotoFloor(toFloor);
+            }
+        });
     }
 
 }
