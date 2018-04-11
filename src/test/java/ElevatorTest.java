@@ -64,28 +64,30 @@ public class ElevatorTest {
         context.assertIsSatisfied();
     }
 
-//    @Test
-//    public void testRequestServiceAndMultiFloorOptimization() throws InterruptedException {
-//        Elevator elevator = new Elevator(elevatorController);
-//        final Sequence callSequence = context.sequence("sequence-name");
-//        context.checking(new Expectations() {{
-//            oneOf(elevatorController).gotoFloor(5); inSequence(callSequence);
-//            oneOf(elevatorController).gotoFloor(6); inSequence(callSequence);
-//            oneOf(elevatorController).gotoFloor(7); inSequence(callSequence);
-//            oneOf(elevatorController).gotoFloor(10); inSequence(callSequence);
-//            oneOf(elevatorController).gotoFloor(1); inSequence(callSequence);
-//            oneOf(elevatorController).gotoFloor(3); inSequence(callSequence);
-//        }});
-//
-//        elevator.requestService(5);
-//        elevator.gotoFloor(5, 6);
-//        elevator.gotoFloor(5, 7);
-//        elevator.gotoFloor(5, 10);
-//        elevator.requestService(1);
-//        elevator.gotoFloor(1, 3);
-//        elevator.shutdown();
-//        context.assertIsSatisfied();
-//    }
+    @Test
+    public void testRequestServiceAndMultiFloorOptimization() throws InterruptedException {
+        ElevatorService elevator = new ElevatorService(elevatorController);
+        final Sequence callSequence = context.sequence("sequence-name");
+        context.checking(new Expectations() {{
+            oneOf(elevatorController).gotoFloor(5); inSequence(callSequence);
+            oneOf(elevatorController).gotoFloor(6); inSequence(callSequence);
+            oneOf(elevatorController).gotoFloor(7); inSequence(callSequence);
+            oneOf(elevatorController).gotoFloor(10); inSequence(callSequence);
+            oneOf(elevatorController).gotoFloor(1); inSequence(callSequence);
+            oneOf(elevatorController).gotoFloor(3); inSequence(callSequence);
+        }});
+
+        elevator.requestElevator(new ElevatorRequest(5, new ElevatorAvailableCallback() {
+            public void run(ElevatorUserControl elevator) {
+                elevator.gotoFloor(6);
+                elevator.gotoFloor(7);
+                elevator.gotoFloor(10);
+            }
+        }));
+        elevator.requestElevator(getElevatorRequest(1,3));
+        elevator.shutdown();
+        context.assertIsSatisfied();
+    }
 
 
     //@Test
