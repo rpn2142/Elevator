@@ -29,8 +29,6 @@ public class ElevatorTest {
 
     }
 
-
-
     @Test
     public void testRequestService() throws InterruptedException {
         ElevatorService elevator = new ElevatorService(elevatorController);
@@ -102,8 +100,8 @@ public class ElevatorTest {
         }});
         elevator.requestElevator(new ElevatorRequest(5, ElevatorRequest.Direction.UP, new ElevatorAvailableCallback() {
             public void run(ElevatorUserControl elevator) {
-                elevator.gotoFloor(6);
                 elevator.gotoFloor(7);
+                elevator.gotoFloor(6);
                 elevator.gotoFloor(1);
             }
         }));
