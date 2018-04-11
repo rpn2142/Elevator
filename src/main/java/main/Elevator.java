@@ -4,6 +4,8 @@ import api.ElevatorDriverController;
 import api.ElevatorUserControl;
 import model.ElevatorRequest;
 
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -45,8 +47,33 @@ public class Elevator extends Thread implements ElevatorUserControl {
         elevatorDriverController.gotoFloor(floor);
         elevatorRequest.getElevatorAvailableCallback().run(this);
         Integer destinationFloor = serviceQueue.poll(REQUEST_TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        if( destinationFloor != null )
-            elevatorDriverController.gotoFloor(destinationFloor);
+        gotoFloors(destinationFloor);
+    }
+
+    private void gotoFloors(Integer destinationFloor) throws InterruptedException {
+
+        if( destinationFloor == null )
+            return;
+
+        SortedSet<Integer> floors = new TreeSet<Integer>();
+        floors.add(destinationFloor);
+
+        while( ! floors.isEmpty() ) {
+            grabAllGoToRequests(floors);
+            elevatorDriverController.gotoFloor(pollFirst(floors));
+        }
+    }
+
+    private Integer pollFirst(SortedSet<Integer> floors) {
+        Integer floor = floors.first();
+        floors.remove(floor);
+        return floor;
+    }
+
+
+    private void grabAllGoToRequests(SortedSet<Integer> floors) throws InterruptedException {
+        while( ! serviceQueue.isEmpty() )
+            floors.add(serviceQueue.poll(1l, TimeUnit.MILLISECONDS));
     }
 
     public void gotoFloor(Integer floor){
@@ -54,6 +81,6 @@ public class Elevator extends Thread implements ElevatorUserControl {
     }
 
     public void shutdown() {
-        elevatorRequestQueue.add(new ElevatorRequest(SHUTDOWN_CODE, null));
+        elevatorRequestQueue.add(new ElevatorRequest(SHUTDOWN_CODE, ElevatorRequest.Direction.UP, null));
     }
 }

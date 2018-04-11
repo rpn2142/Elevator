@@ -65,7 +65,7 @@ public class ElevatorTest {
     }
 
     @Test
-    public void testRequestServiceAndMultiFloorOptimization() throws InterruptedException {
+    public void testGotoMultipleFloorsInSingleRequest() throws InterruptedException {
         ElevatorService elevator = new ElevatorService(elevatorController);
         final Sequence callSequence = context.sequence("sequence-name");
         context.checking(new Expectations() {{
@@ -77,7 +77,7 @@ public class ElevatorTest {
             oneOf(elevatorController).gotoFloor(3); inSequence(callSequence);
         }});
 
-        elevator.requestElevator(new ElevatorRequest(5, new ElevatorAvailableCallback() {
+        elevator.requestElevator(new ElevatorRequest(5, ElevatorRequest.Direction.UP, new ElevatorAvailableCallback() {
             public void run(ElevatorUserControl elevator) {
                 elevator.gotoFloor(6);
                 elevator.gotoFloor(7);
@@ -85,6 +85,30 @@ public class ElevatorTest {
             }
         }));
         elevator.requestElevator(getElevatorRequest(1,3));
+        elevator.shutdown();
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGotoMultipleFloorsWithWrongValue() throws InterruptedException {
+        ElevatorService elevator = new ElevatorService(elevatorController);
+        final Sequence callSequence = context.sequence("sequence-name");
+        context.checking(new Expectations() {{
+            oneOf(elevatorController).gotoFloor(5); inSequence(callSequence);
+            oneOf(elevatorController).gotoFloor(6); inSequence(callSequence);
+            oneOf(elevatorController).gotoFloor(7); inSequence(callSequence);
+        //    oneOf(elevatorController).gotoFloor(10); inSequence(callSequence);
+        //    oneOf(elevatorController).gotoFloor(9); inSequence(callSequence);
+        }});
+        elevator.requestElevator(new ElevatorRequest(5, ElevatorRequest.Direction.UP, new ElevatorAvailableCallback() {
+            public void run(ElevatorUserControl elevator) {
+                elevator.gotoFloor(6);
+                elevator.gotoFloor(7);
+                elevator.gotoFloor(1);
+            }
+        }));
+
+
         elevator.shutdown();
         context.assertIsSatisfied();
     }
@@ -101,7 +125,9 @@ public class ElevatorTest {
     }
 
     private ElevatorRequest getElevatorRequest(Integer fromFloor, final Integer toFloor) {
-        return new ElevatorRequest(fromFloor, new ElevatorAvailableCallback() {
+
+        ElevatorRequest.Direction direction = (toFloor != null && toFloor > fromFloor) ? ElevatorRequest.Direction.UP : ElevatorRequest.Direction.DOWN;
+        return new ElevatorRequest(fromFloor, direction, new ElevatorAvailableCallback() {
             public void run(ElevatorUserControl elevatorForUser) {
                 if( toFloor != null )
                 elevatorForUser.gotoFloor(toFloor);
