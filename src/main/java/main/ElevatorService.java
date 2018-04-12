@@ -25,15 +25,21 @@ public class ElevatorService {
 
     public void requestElevator(ElevatorRequest elevatorRequest) {
         try {
-            if( elevator.getCurrentElevatorState() != null &&
-                    elevator.getCurrentElevatorState().getDirection().equals(elevatorRequest.getDirection()) )
-                if( elevator.gotoFloor(elevatorRequest) )
+            if( isElevatorMovingInDirection(elevatorRequest.getDirection()) ) {
+                boolean successfullyAdded = elevator.gotoFloor(elevatorRequest);
+                if( successfullyAdded )
                     return;
+            }
 
             elevatorRequestQueue.put(elevatorRequest);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    private boolean isElevatorMovingInDirection(ElevatorRequest.Direction direction) {
+        return elevator.getCurrentElevatorState() != null &&
+                elevator.getCurrentElevatorState().getDirection().equals(direction);
     }
 
     public void shutdown() {
