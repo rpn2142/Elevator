@@ -95,8 +95,8 @@ public class ElevatorTest {
             oneOf(elevatorController).gotoFloor(5); inSequence(callSequence);
             oneOf(elevatorController).gotoFloor(6); inSequence(callSequence);
             oneOf(elevatorController).gotoFloor(7); inSequence(callSequence);
-        //    oneOf(elevatorController).gotoFloor(10); inSequence(callSequence);
-        //    oneOf(elevatorController).gotoFloor(9); inSequence(callSequence);
+            oneOf(elevatorController).gotoFloor(5); inSequence(callSequence);
+            oneOf(elevatorController).gotoFloor(1); inSequence(callSequence);
         }});
         elevator.requestElevator(new ElevatorRequest(5, ElevatorRequest.Direction.UP, new ElevatorAvailableCallback() {
             public void run(ElevatorUserControl elevator) {
@@ -106,7 +106,13 @@ public class ElevatorTest {
             }
         }));
 
-
+        elevator.requestElevator(new ElevatorRequest(5, ElevatorRequest.Direction.DOWN, new ElevatorAvailableCallback() {
+            public void run(ElevatorUserControl elevator) {
+                elevator.gotoFloor(7);
+                elevator.gotoFloor(6);
+                elevator.gotoFloor(1);
+            }
+        }));
         elevator.shutdown();
         context.assertIsSatisfied();
     }

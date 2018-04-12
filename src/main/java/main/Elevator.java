@@ -3,6 +3,7 @@ package main;
 import api.ElevatorDriverController;
 import api.ElevatorUserControl;
 import model.ElevatorRequest;
+import model.ElevatorState;
 
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -10,6 +11,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import static api.Config.*;
+import static model.ElevatorState.getElevatorState;
 
 /**
  * Created by pramraj on 4/4/18.
@@ -19,6 +21,7 @@ public class Elevator extends Thread implements ElevatorUserControl {
     private BlockingQueue<ElevatorRequest> elevatorRequestQueue;
     private BlockingQueue<Integer> serviceQueue;
     private ElevatorDriverController elevatorDriverController;
+    private ElevatorState currentElevatorState;
 
     public Elevator(ElevatorDriverController elevatorDriverController, BlockingQueue<ElevatorRequest> elevatorRequestQueue) {
         this.elevatorRequestQueue = elevatorRequestQueue;
@@ -45,6 +48,7 @@ public class Elevator extends Thread implements ElevatorUserControl {
     private void provideService(ElevatorRequest elevatorRequest) throws InterruptedException {
         Integer floor = elevatorRequest.getFloor();
         elevatorDriverController.gotoFloor(floor);
+        currentElevatorState = getElevatorState(elevatorRequest);
         elevatorRequest.getElevatorAvailableCallback().run(this);
         Integer destinationFloor = serviceQueue.poll(REQUEST_TIMEOUT_MS, TimeUnit.MILLISECONDS);
         gotoFloors(destinationFloor);
@@ -77,6 +81,8 @@ public class Elevator extends Thread implements ElevatorUserControl {
     }
 
     public void gotoFloor(Integer floor){
+        if( currentElevatorState != null && ! currentElevatorState.isValidGotoFloor(floor) )
+            return;
         serviceQueue.add(floor);
     }
 
