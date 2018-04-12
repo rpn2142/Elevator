@@ -5,7 +5,8 @@ import api.ElevatorAvailableCallback;
 /**
  * Created by pramraj on 4/11/18.
  */
-public class ElevatorRequest {
+public class ElevatorRequest implements Comparable<ElevatorRequest> {
+
     public enum Direction {
         UP, DOWN
     };
@@ -29,5 +30,9 @@ public class ElevatorRequest {
 
     public ElevatorAvailableCallback getElevatorAvailableCallback() {
         return elevatorAvailableCallback;
+    }
+
+    public int compareTo(ElevatorRequest elevatorRequest) {
+        return this.getFloor().compareTo(elevatorRequest.getFloor());
     }
 }

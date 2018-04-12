@@ -24,6 +24,10 @@ public class ElevatorState {
         return new ElevatorState(elevatorRequest.getFloor(), elevatorRequest.getDirection());
     }
 
+    public static ElevatorState getDefaultElevatorState() {
+        return new ElevatorState(1, ElevatorRequest.Direction.UP);
+    }
+
     public boolean isValidGotoFloor(Integer floor) {
         if( floor.equals(currentFloor) )
             return false;

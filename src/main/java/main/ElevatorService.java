@@ -25,6 +25,11 @@ public class ElevatorService {
 
     public void requestElevator(ElevatorRequest elevatorRequest) {
         try {
+            if( elevator.getCurrentElevatorState() != null &&
+                    elevator.getCurrentElevatorState().getDirection().equals(elevatorRequest.getDirection()) )
+                if( elevator.gotoFloor(elevatorRequest) )
+                    return;
+
             elevatorRequestQueue.put(elevatorRequest);
         } catch (InterruptedException e) {
             e.printStackTrace();

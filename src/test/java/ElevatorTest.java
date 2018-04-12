@@ -118,6 +118,38 @@ public class ElevatorTest {
     }
 
 
+    @Test
+    public void testOptimizationForRequestsAlongTheWay() throws InterruptedException {
+        final ElevatorService elevatorService = new ElevatorService(elevatorController);
+        final Sequence callSequence = context.sequence("sequence-name");
+        context.checking(new Expectations() {{
+            oneOf(elevatorController).gotoFloor(5); inSequence(callSequence);
+            oneOf(elevatorController).gotoFloor(7); inSequence(callSequence);
+            oneOf(elevatorController).gotoFloor(9); inSequence(callSequence);
+            oneOf(elevatorController).gotoFloor(10); inSequence(callSequence);
+        }});
+        elevatorService.requestElevator(new ElevatorRequest(5, ElevatorRequest.Direction.UP, new ElevatorAvailableCallback() {
+            public void run(ElevatorUserControl elevator) {
+                try {
+                    Thread.sleep(30l);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                elevator.gotoFloor(10);
+            }
+        }));
+        Thread.sleep(20l);
+        elevatorService.requestElevator(new ElevatorRequest(7, ElevatorRequest.Direction.UP, new ElevatorAvailableCallback() {
+            public void run(ElevatorUserControl elevator) {
+                elevator.gotoFloor(9);
+            }
+        }));
+        Thread.sleep(60l);
+        elevatorService.shutdown();
+        context.assertIsSatisfied();
+    }
+
+
     //@Test
     public void testGoToService() {
         ElevatorService elevator = new ElevatorService(elevatorController);
