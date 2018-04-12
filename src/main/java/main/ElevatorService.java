@@ -25,7 +25,7 @@ public class ElevatorService {
 
     public void requestElevator(ElevatorRequest elevatorRequest) {
         try {
-            if( isElevatorMovingInDirection(elevatorRequest.getDirection()) ) {
+            if( elevator.isMovingInDirection(elevatorRequest.getDirection()) ) {
                 boolean successfullyAdded = elevator.gotoFloor(elevatorRequest);
                 if( successfullyAdded )
                     return;
@@ -35,11 +35,6 @@ public class ElevatorService {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-    }
-
-    private boolean isElevatorMovingInDirection(ElevatorRequest.Direction direction) {
-        return elevator.getCurrentElevatorState() != null &&
-                elevator.getCurrentElevatorState().getDirection().equals(direction);
     }
 
     public void shutdown() {

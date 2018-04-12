@@ -29,7 +29,7 @@ public class Elevator extends Thread implements ElevatorUserControl {
     private BlockingQueue<ElevatorRequest> elevatorRequestQueue;
     private BlockingQueue<ElevatorRequest> serviceQueue;
     private ElevatorDriverController elevatorDriverController;
-    private ElevatorState currentElevatorState;
+    private ElevatorState currentElevatorState = getDefaultElevatorState();
 
     public Elevator(ElevatorDriverController elevatorDriverController, BlockingQueue<ElevatorRequest> elevatorRequestQueue) {
         this.elevatorRequestQueue = elevatorRequestQueue;
@@ -95,11 +95,19 @@ public class Elevator extends Thread implements ElevatorUserControl {
     }
 
     public boolean gotoFloor(ElevatorRequest elevatorRequest) {
-        if( currentElevatorState != null && ! currentElevatorState.isValidGotoFloor(elevatorRequest.getFloor()) )
+        if( isMoving() && ! currentElevatorState.isValidGotoFloor(elevatorRequest.getFloor()) )
             return false;
 
         serviceQueue.add(elevatorRequest);
         return true;
+    }
+
+    private boolean isMoving() {
+        return currentElevatorState.getDirection() != ElevatorRequest.Direction.NONE;
+    }
+
+    public boolean isMovingInDirection(ElevatorRequest.Direction direction) {
+        return currentElevatorState.getDirection().equals(direction) ;
     }
 
     public void shutdown() {

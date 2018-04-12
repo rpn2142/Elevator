@@ -25,7 +25,7 @@ public class ElevatorState {
     }
 
     public static ElevatorState getDefaultElevatorState() {
-        return new ElevatorState(1, ElevatorRequest.Direction.UP);
+        return new ElevatorState(1, ElevatorRequest.Direction.NONE);
     }
 
     public boolean isValidGotoFloor(Integer floor) {

@@ -8,7 +8,7 @@ import api.ElevatorAvailableCallback;
 public class ElevatorRequest implements Comparable<ElevatorRequest> {
 
     public enum Direction {
-        UP, DOWN
+        UP, DOWN, NONE
     };
     private Integer floor;
     private ElevatorAvailableCallback elevatorAvailableCallback;
