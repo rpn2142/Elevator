@@ -2,7 +2,7 @@ package main;
 
 import api.ElevatorAvailableCallback;
 import api.ElevatorDriverController;
-import api.ElevatorUserControl;
+import api.ElevatorForUser;
 import model.ElevatorRequest;
 import model.ElevatorState;
 
@@ -18,10 +18,10 @@ import static model.ElevatorState.getElevatorState;
 /**
  * Created by pramraj on 4/4/18.
  */
-public class Elevator extends Thread implements ElevatorUserControl {
+public class ElevatorImpl extends Thread implements ElevatorForUser {
 
     ElevatorAvailableCallback EMPTY_CALLBACK = new ElevatorAvailableCallback() {
-        public void run(ElevatorUserControl elevator) {
+        public void run(ElevatorForUser elevator) {
 
         }
     };
@@ -31,7 +31,7 @@ public class Elevator extends Thread implements ElevatorUserControl {
     private ElevatorDriverController elevatorDriverController;
     private ElevatorState currentElevatorState = getDefaultElevatorState();
 
-    public Elevator(ElevatorDriverController elevatorDriverController, BlockingQueue<ElevatorRequest> elevatorRequestQueue) {
+    public ElevatorImpl(ElevatorDriverController elevatorDriverController, BlockingQueue<ElevatorRequest> elevatorRequestQueue) {
         this.elevatorRequestQueue = elevatorRequestQueue;
         this.serviceQueue = new ArrayBlockingQueue<ElevatorRequest>(QUEUE_CAPACITY);
         this.elevatorDriverController = elevatorDriverController;

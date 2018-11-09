@@ -1,6 +1,7 @@
 package main;
 
 import api.ElevatorDriverController;
+import api.ElevatorService;
 import model.ElevatorRequest;
 
 import java.util.concurrent.ArrayBlockingQueue;
@@ -11,15 +12,15 @@ import static api.Config.QUEUE_CAPACITY;
 /**
  * Created by pramraj on 4/4/18.
  */
-public class ElevatorService {
+public class ElevatorServiceImpl implements ElevatorService {
 
-    private Elevator elevator;
+    private ElevatorImpl elevator;
     private BlockingQueue<ElevatorRequest> elevatorRequestQueue;
 
 
-    public ElevatorService(ElevatorDriverController elevatorDriverController) {
+    public ElevatorServiceImpl(ElevatorDriverController elevatorDriverController) {
         this.elevatorRequestQueue = new ArrayBlockingQueue<ElevatorRequest>(QUEUE_CAPACITY);
-        elevator = new Elevator(elevatorDriverController, elevatorRequestQueue);
+        elevator = new ElevatorImpl(elevatorDriverController, elevatorRequestQueue);
         elevator.start();
     }
 
