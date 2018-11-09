@@ -1,13 +1,13 @@
 import api.ElevatorAvailableCallback;
 import api.ElevatorDriverController;
 import api.ElevatorForUser;
-import api.ElevatorService;
 import main.ElevatorServiceImpl;
 import model.ElevatorRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -23,13 +23,15 @@ public class ElevatorTest {
     @Mock
     ElevatorDriverController elevatorDriverController;
 
+    @InjectMocks
+    ElevatorServiceImpl elevatorService;
+
     @Before
     public void setUp() {
     }
 
     @Test
     public void testRequestService() throws InterruptedException {
-        ElevatorService elevatorService = new ElevatorServiceImpl(elevatorDriverController);
 
         elevatorService.requestElevator(getElevatorRequest(5, 10));
         elevatorService.requestElevator(getElevatorRequest(1, 3));
@@ -45,7 +47,6 @@ public class ElevatorTest {
 
     @Test
     public void testRequestServiceButNoAction() throws InterruptedException {
-        ElevatorService elevatorService = new ElevatorServiceImpl(elevatorDriverController);
 
         elevatorService.requestElevator(getElevatorRequest(5, null));
         elevatorService.requestElevator(getElevatorRequest(1, 3));
@@ -59,7 +60,6 @@ public class ElevatorTest {
 
     @Test
     public void testGotoMultipleFloorsInSingleRequest() throws InterruptedException {
-        ElevatorService elevatorService = new ElevatorServiceImpl(elevatorDriverController);
 
         elevatorService.requestElevator(new ElevatorRequest(5, ElevatorRequest.Direction.UP, new ElevatorAvailableCallback() {
             public void run(ElevatorForUser elevator) {
@@ -83,7 +83,6 @@ public class ElevatorTest {
 
     @Test
     public void testGotoMultipleFloorsWithWrongValue() throws InterruptedException {
-        ElevatorService elevatorService = new ElevatorServiceImpl(elevatorDriverController);
 
         elevatorService.requestElevator(new ElevatorRequest(5, ElevatorRequest.Direction.UP, new ElevatorAvailableCallback() {
             public void run(ElevatorForUser elevator) {
@@ -113,7 +112,6 @@ public class ElevatorTest {
 
     @Test
     public void testOptimizationForRequestsAlongTheWay() throws InterruptedException {
-        final ElevatorService elevatorService = new ElevatorServiceImpl(elevatorDriverController);
 
         elevatorService.requestElevator(new ElevatorRequest(5, ElevatorRequest.Direction.UP, new ElevatorAvailableCallback() {
             public void run(ElevatorForUser elevator) {
