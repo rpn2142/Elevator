@@ -26,15 +26,20 @@ public class ElevatorServiceImpl implements ElevatorService {
 
     public void requestElevator(ElevatorRequest elevatorRequest) {
         try {
-            if( elevator.isMovingInDirection(elevatorRequest.getDirection()) ) {
+            if( isElevatorOnTheWay(elevatorRequest) ) {
                 boolean successfullyAdded = elevator.gotoFloor(elevatorRequest);
                 if( successfullyAdded )
                     return;
             }
+
             elevatorRequestQueueService.putRequest(elevatorRequest);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    private boolean isElevatorOnTheWay(ElevatorRequest elevatorRequest) {
+        return elevator.isMovingInDirection(elevatorRequest.getDirection());
     }
 
     public void shutdown() {
