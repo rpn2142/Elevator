@@ -2,7 +2,9 @@ package main;
 
 import api.ElevatorAvailableCallback;
 import api.ElevatorDriverController;
-import api.ElevatorForUser;
+import api.Elevator;
+import api.ElevatorRequestQueueService;
+import com.google.inject.Inject;
 import model.ElevatorRequest;
 import model.ElevatorState;
 
@@ -18,23 +20,25 @@ import static model.ElevatorState.getElevatorState;
 /**
  * Created by pramraj on 4/4/18.
  */
-public class ElevatorImpl extends Thread implements ElevatorForUser {
+public class ElevatorImpl extends Thread implements Elevator {
 
     ElevatorAvailableCallback EMPTY_CALLBACK = new ElevatorAvailableCallback() {
-        public void run(ElevatorForUser elevator) {
+        public void run(Elevator elevator) {
 
         }
     };
 
-    private BlockingQueue<ElevatorRequest> elevatorRequestQueue;
+    private ElevatorRequestQueueService elevatorRequestQueueService;
     private BlockingQueue<ElevatorRequest> serviceQueue;
     private ElevatorDriverController elevatorDriverController;
     private ElevatorState currentElevatorState = getDefaultElevatorState();
 
-    public ElevatorImpl(ElevatorDriverController elevatorDriverController, BlockingQueue<ElevatorRequest> elevatorRequestQueue) {
-        this.elevatorRequestQueue = elevatorRequestQueue;
-        this.serviceQueue = new ArrayBlockingQueue<ElevatorRequest>(QUEUE_CAPACITY);
+    @Inject
+    public ElevatorImpl(ElevatorRequestQueueService elevatorRequestQueueService, ElevatorDriverController elevatorDriverController) {
+        this.elevatorRequestQueueService = elevatorRequestQueueService;
         this.elevatorDriverController = elevatorDriverController;
+        this.serviceQueue = new ArrayBlockingQueue<ElevatorRequest>(QUEUE_CAPACITY);
+
     }
 
     @Override
@@ -42,7 +46,7 @@ public class ElevatorImpl extends Thread implements ElevatorForUser {
 
         ElevatorRequest elevatorRequest = null;
         try {
-            while( (elevatorRequest = elevatorRequestQueue.take()) != null) {
+            while( (elevatorRequest = elevatorRequestQueueService.takeRequest()) != null) {
                 if( elevatorRequest.getFloor().equals(SHUTDOWN_CODE) )
                     break;
                 else
@@ -111,7 +115,12 @@ public class ElevatorImpl extends Thread implements ElevatorForUser {
     }
 
     public void shutdown() {
-        elevatorRequestQueue.add(new ElevatorRequest(SHUTDOWN_CODE, ElevatorRequest.Direction.UP, null));
+        try {
+            elevatorRequestQueueService.putRequest(new ElevatorRequest(SHUTDOWN_CODE, ElevatorRequest.Direction.UP, null));
+            this.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     public ElevatorState getCurrentElevatorState() {

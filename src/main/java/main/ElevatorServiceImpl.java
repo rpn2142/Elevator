@@ -1,26 +1,26 @@
 package main;
 
-import api.ElevatorDriverController;
+import api.Elevator;
+import api.ElevatorRequestQueueService;
 import api.ElevatorService;
 import model.ElevatorRequest;
 
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-
-import static api.Config.QUEUE_CAPACITY;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  * Created by pramraj on 4/4/18.
  */
+@Singleton
 public class ElevatorServiceImpl implements ElevatorService {
 
-    private ElevatorImpl elevator;
-    private BlockingQueue<ElevatorRequest> elevatorRequestQueue;
+    private Elevator elevator;
+    private ElevatorRequestQueueService elevatorRequestQueueService;
 
-
-    public ElevatorServiceImpl(ElevatorDriverController elevatorDriverController) {
-        this.elevatorRequestQueue = new ArrayBlockingQueue<ElevatorRequest>(QUEUE_CAPACITY);
-        elevator = new ElevatorImpl(elevatorDriverController, elevatorRequestQueue);
+    @Inject
+    public ElevatorServiceImpl(Elevator elevator, ElevatorRequestQueueService elevatorRequestQueueService) {
+        this.elevator = elevator;
+        this.elevatorRequestQueueService = elevatorRequestQueueService;
         elevator.start();
     }
 
@@ -31,8 +31,7 @@ public class ElevatorServiceImpl implements ElevatorService {
                 if( successfullyAdded )
                     return;
             }
-
-            elevatorRequestQueue.put(elevatorRequest);
+            elevatorRequestQueueService.putRequest(elevatorRequest);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -40,14 +39,6 @@ public class ElevatorServiceImpl implements ElevatorService {
 
     public void shutdown() {
         elevator.shutdown();
-        waitForShutdown();
     }
 
-    private void waitForShutdown() {
-        try {
-            elevator.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
 }

@@ -1,13 +1,15 @@
+import api.Elevator;
 import api.ElevatorAvailableCallback;
 import api.ElevatorDriverController;
-import api.ElevatorForUser;
+import api.ElevatorService;
+import main.ElevatorImpl;
+import main.ElevatorRequestQueueServiceImpl;
 import main.ElevatorServiceImpl;
 import model.ElevatorRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -18,16 +20,17 @@ import static org.mockito.Mockito.times;
  * Created by pramraj on 4/4/18.
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ElevatorTest {
+public class ElevatorServiceEndToEndTest {
 
     @Mock
-    ElevatorDriverController elevatorDriverController;
-
-    @InjectMocks
-    ElevatorServiceImpl elevatorService;
+    private ElevatorDriverController elevatorDriverController;
+    private ElevatorService elevatorService;
 
     @Before
     public void setUp() {
+        ElevatorRequestQueueServiceImpl elevatorRequestQueueService = new ElevatorRequestQueueServiceImpl();
+        ElevatorImpl elevator = new ElevatorImpl(elevatorRequestQueueService, elevatorDriverController);
+        elevatorService = new ElevatorServiceImpl(elevator, elevatorRequestQueueService);
     }
 
     @Test
@@ -62,7 +65,7 @@ public class ElevatorTest {
     public void testGotoMultipleFloorsInSingleRequest() throws InterruptedException {
 
         elevatorService.requestElevator(new ElevatorRequest(5, ElevatorRequest.Direction.UP, new ElevatorAvailableCallback() {
-            public void run(ElevatorForUser elevator) {
+            public void run(Elevator elevator) {
                 elevator.gotoFloor(6);
                 elevator.gotoFloor(7);
                 elevator.gotoFloor(10);
@@ -85,7 +88,7 @@ public class ElevatorTest {
     public void testGotoMultipleFloorsWithWrongValue() throws InterruptedException {
 
         elevatorService.requestElevator(new ElevatorRequest(5, ElevatorRequest.Direction.UP, new ElevatorAvailableCallback() {
-            public void run(ElevatorForUser elevator) {
+            public void run(Elevator elevator) {
                 elevator.gotoFloor(7);
                 elevator.gotoFloor(6);
                 elevator.gotoFloor(1);
@@ -93,7 +96,7 @@ public class ElevatorTest {
         }));
 
         elevatorService.requestElevator(new ElevatorRequest(5, ElevatorRequest.Direction.DOWN, new ElevatorAvailableCallback() {
-            public void run(ElevatorForUser elevator) {
+            public void run(Elevator elevator) {
                 elevator.gotoFloor(7);
                 elevator.gotoFloor(6);
                 elevator.gotoFloor(1);
@@ -114,7 +117,7 @@ public class ElevatorTest {
     public void testOptimizationForRequestsAlongTheWay() throws InterruptedException {
 
         elevatorService.requestElevator(new ElevatorRequest(5, ElevatorRequest.Direction.UP, new ElevatorAvailableCallback() {
-            public void run(ElevatorForUser elevator) {
+            public void run(Elevator elevator) {
                 try {
                     Thread.sleep(30l);
                 } catch (InterruptedException e) {
@@ -125,7 +128,7 @@ public class ElevatorTest {
         }));
         Thread.sleep(20l);
         elevatorService.requestElevator(new ElevatorRequest(7, ElevatorRequest.Direction.UP, new ElevatorAvailableCallback() {
-            public void run(ElevatorForUser elevator) {
+            public void run(Elevator elevator) {
                 elevator.gotoFloor(9);
             }
         }));
@@ -142,9 +145,9 @@ public class ElevatorTest {
 
         ElevatorRequest.Direction direction = (toFloor != null && toFloor > fromFloor) ? ElevatorRequest.Direction.UP : ElevatorRequest.Direction.DOWN;
         return new ElevatorRequest(fromFloor, direction, new ElevatorAvailableCallback() {
-            public void run(ElevatorForUser elevatorForUser) {
+            public void run(Elevator elevator) {
                 if( toFloor != null )
-                elevatorForUser.gotoFloor(toFloor);
+                elevator.gotoFloor(toFloor);
             }
         });
     }
